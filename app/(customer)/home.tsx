@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   View,
@@ -15,9 +15,33 @@ import { useAuth } from "@/context/AuthContext";
 
 import CustomerHeader from "../components/CustomerHeader";
 import CustomerSideMenu from "../components/CustomerSideMenu";
+import { upCommingAppointments } from "@/service/appointment/appointmentService";
+import { Appointment } from "@/types/Appointment";
 
 export default function CustomerHome() {
   const { user } = useAuth();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    const loadUpcomingAppointments = async () => {
+      try {
+        const response = await upCommingAppointments();
+
+        console.log("Upcoming appointments:", response);
+
+        if (response.success) {
+          setAppointments((response.data ?? []).slice(0, 5));
+        }
+      } catch (error) {
+        console.error(
+          "Load upcoming appointments error:",
+          error
+        );
+      }
+    };
+
+    loadUpcomingAppointments();
+  }, []);
 
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -30,7 +54,7 @@ export default function CustomerHome() {
   };
 
   const handleAppointments = () => {
-    router.push("/(customer)/book-appointment");
+    router.push("/(customer)/display-all-appointment");
   };
 
   return (
@@ -234,63 +258,68 @@ export default function CustomerHome() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.appointmentBody}>
-            <View style={styles.doctorAvatar}>
-              <Ionicons
-                name="person"
-                size={42}
-                color="#12366B"
-              />
-            </View>
-
-            <View style={styles.doctorDetails}>
-              <Text style={styles.doctorName}>
-                Dr. Perera
-              </Text>
-
-              <Text style={styles.doctorSpecialization}>
-                General Physician
-              </Text>
-
-              <View style={styles.detailRow}>
+          {appointments.map((appointment) => (
+            <View
+              key={appointment._id}
+              style={styles.appointmentBody}
+            >
+              <View style={styles.doctorAvatar}>
                 <Ionicons
-                  name="calendar-outline"
-                  size={18}
+                  name="person"
+                  size={42}
                   color="#12366B"
                 />
-
-                <Text style={styles.detailText}>
-                  16 Oct 2026
-                </Text>
-
-                <Text style={styles.separator}>
-                  |
-                </Text>
-
-                <Text style={styles.detailText}>
-                  10:30 AM
-                </Text>
               </View>
 
-              <View style={styles.detailRow}>
-                <Ionicons
-                  name="location-outline"
-                  size={18}
-                  color="#12366B"
-                />
+              <View style={styles.doctorDetails}>
+                <Text style={styles.doctorName}>
+                  {appointment.doctor?.name}
+                </Text>
 
-                <Text style={styles.detailText}>
-                  Main Clinic
+                <Text style={styles.doctorSpecialization}>
+                  {appointment.doctor?.qualification}
+                </Text>
+
+                <View style={styles.detailRow}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={18}
+                    color="#12366B"
+                  />
+
+                  <Text style={styles.detailText}>
+                    {appointment.appointmentDate.split("T")[0]}
+                  </Text>
+
+                  <Text style={styles.separator}>
+                    |
+                  </Text>
+
+                  <Text style={styles.detailText}>
+                    {appointment.appointmentTime}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Ionicons
+                    name="location-outline"
+                    size={18}
+                    color="#12366B"
+                  />
+
+                  <Text style={styles.detailText}>
+                    Sanha Hospital
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.confirmedBadge}>
+                <Text style={styles.confirmedText}>
+                  {appointment.status}
                 </Text>
               </View>
             </View>
-
-            <View style={styles.confirmedBadge}>
-              <Text style={styles.confirmedText}>
-                Confirmed
-              </Text>
-            </View>
-          </View>
+          ))}
         </View>
       </ScrollView>
 

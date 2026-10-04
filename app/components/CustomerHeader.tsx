@@ -29,8 +29,8 @@ export default function CustomerHeader({
 
         <View>
           <Text style={styles.logoText}>
-            Clinic
-            <Text style={styles.logoBlue}>Care</Text>
+            Channel
+            <Text style={styles.logoBlue}>Me</Text>
           </Text>
 
           <Text style={styles.logoSubtitle}>

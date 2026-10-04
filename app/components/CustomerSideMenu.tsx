@@ -236,7 +236,7 @@ export default function CustomerSideMenu({
                         </View>
 
                         <Text style={styles.menuText}>
-                            About ClinicCare
+                            About ChannelMe
                         </Text>
 
                         <Ionicons
@@ -286,7 +286,7 @@ export default function CustomerSideMenu({
                         </TouchableOpacity>
 
                         <Text style={styles.versionText}>
-                            ClinicCare v1.0.0
+                            ChannelMe v1.0.0
                         </Text>
                     </View>
                 </Animated.View>

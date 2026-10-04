@@ -44,3 +44,24 @@ export const makeAppoinment = async (
     throw error;
   }
 };
+
+export const upCommingAppointments = async () => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    console.log("Token:", token);
+    return await apiRequest<CommonResponse<Appointment[]>>(
+      "/appointments/upcoming",
+      {
+        method: "GET",
+        token: token || undefined,
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Get upcoming appointments error:",
+      error
+    );
+
+    throw error;
+  }
+};
