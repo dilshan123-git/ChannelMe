@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { router } from "expo-router";
 
-import { useAuth } from "../context/AuthContext";
 import LoadingScreen from "./components/LoadingScreen";
+import { useAuth } from "@/context/AuthContext";
 
 const LOADING_TIME = 2000; // 2 seconds
 

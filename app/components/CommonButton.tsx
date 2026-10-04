@@ -21,17 +21,23 @@ export default function CommonButton({
 }: CommonButtonProps) {
   return (
     <Pressable
-      style={[
+      style={({ pressed }) => [
         styles.button,
+        pressed && styles.pressed,
         (disabled || loading) && styles.disabled,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
     >
       {loading ? (
-        <ActivityIndicator color="#ffffff" />
+        <ActivityIndicator
+          size="small"
+          color="#ffffff"
+        />
       ) : (
-        <Text style={styles.text}>{title}</Text>
+        <Text style={styles.text}>
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -39,21 +45,41 @@ export default function CommonButton({
 
 const styles = StyleSheet.create({
   button: {
-    height: 50,
-    borderRadius: 8,
-    backgroundColor: "#1b1b1c",
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: "#12366B",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
+
+    elevation: 3,
+
+    shadowOpacity: 0.18,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+  },
+
+  pressed: {
+    opacity: 0.85,
+    transform: [
+      {
+        scale: 0.98,
+      },
+    ],
   },
 
   disabled: {
-    opacity: 0.6,
+    opacity: 0.55,
+    elevation: 0,
   },
 
   text: {
     color: "#ffffff",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: 0.2,
   },
 });

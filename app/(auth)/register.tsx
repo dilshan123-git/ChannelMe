@@ -1,6 +1,4 @@
-import React, {
-  useState,
-} from "react";
+import React, { useState } from "react";
 
 import {
   ImageBackground,
@@ -11,38 +9,39 @@ import {
   Platform,
   ScrollView,
   Pressable,
+  Alert,
 } from "react-native";
 
 import { router } from "expo-router";
 
-import { useAuth } from "../../context/AuthContext";
-
 import CommonTextBox from "../components/CommonTextBox";
 import CommonButton from "../components/CommonButton";
+import { registerUser } from "@/service/auth/authService";
 
 
 export default function RegisterScreen() {
-  const { register } = useAuth();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] =
-    useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /* =========================================================
+     VALIDATION
+  ========================================================= */
+
   const validateForm = () => {
+    setError("");
+
     if (!name.trim()) {
       setError("Name is required");
       return false;
     }
 
     if (name.trim().length < 2) {
-      setError(
-        "Name must contain at least 2 characters"
-      );
+      setError("Name must contain at least 2 characters");
       return false;
     }
 
@@ -52,9 +51,7 @@ export default function RegisterScreen() {
     }
 
     if (!email.includes("@")) {
-      setError(
-        "Please enter a valid email address"
-      );
+      setError("Please enter a valid email address");
       return false;
     }
 
@@ -70,6 +67,11 @@ export default function RegisterScreen() {
       return false;
     }
 
+    if (!confirmPassword) {
+      setError("Please confirm your password");
+      return false;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return false;
@@ -78,35 +80,72 @@ export default function RegisterScreen() {
     return true;
   };
 
+
   const handleRegister = async () => {
+    console.log("Register button clicked");
+
     setError("");
 
     if (!validateForm()) {
+      console.log("Validation failed");
       return;
     }
+
+    console.log("Validation passed");
 
     try {
       setLoading(true);
 
-      await register({
+      console.log("Calling register API...");
+
+      const response = await registerUser({
         name: name.trim(),
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
 
-      router.replace(
-        "/(customer)/home"
+      console.log("API response:", response);
+
+      setLoading(false);
+
+      console.log("About to show Alert");
+
+      Alert.alert(
+        "Registration Successful",
+        "You can now log in with your credentials.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              console.log("7. OK pressed");
+              router.replace("/(auth)/login" as any);
+            },
+          },
+        ]
       );
-    } catch (error: any) {
+
+      console.log("8. Alert.alert executed");
+
+    } catch (error: unknown) {
+      setLoading(false);
+
+      console.error("REGISTRATION ERROR:", error);
+
       const message =
-        error?.response?.data?.message ||
-        "Registration failed. Please try again.";
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
 
       setError(message);
-    } finally {
-      setLoading(false);
+
+      Alert.alert(
+        "Registration Error",
+        message
+      );
     }
   };
+
+
 
   return (
     <ImageBackground
@@ -115,7 +154,6 @@ export default function RegisterScreen() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
-
         <KeyboardAvoidingView
           style={styles.container}
           behavior={
@@ -125,9 +163,7 @@ export default function RegisterScreen() {
           }
         >
           <ScrollView
-            contentContainerStyle={
-              styles.scrollContent
-            }
+            contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
@@ -186,9 +222,7 @@ export default function RegisterScreen() {
                 placeholder="Confirm your password"
                 secureTextEntry
                 value={confirmPassword}
-                onChangeText={
-                  setConfirmPassword
-                }
+                onChangeText={setConfirmPassword}
               />
 
               {/* Register Button */}
@@ -206,9 +240,7 @@ export default function RegisterScreen() {
 
                 <Pressable
                   onPress={() =>
-                    router.push(
-                      "/(auth)/login"
-                    )
+                    router.push("/(auth)/login" as any)
                   }
                 >
                   <Text style={styles.link}>
@@ -220,7 +252,6 @@ export default function RegisterScreen() {
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
-
       </View>
     </ImageBackground>
   );
@@ -252,9 +283,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
     alignSelf: "center",
-
     backgroundColor: "rgba(255, 255, 255, 0.95)",
-
     padding: 24,
     borderRadius: 16,
   },
